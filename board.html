@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>게시판</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 20px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: center;
+    }
+    tr:hover {
+      background: #f1f1f1;
+      cursor: pointer;
+    }
+    .post-detail {
+      display: none;
+      background: #fafafa;
+      padding: 15px;
+      border: 1px solid #ddd;
+    }
+    .write-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 50%;
+      font-size: 18px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.4);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background: white;
+      padding: 20px;
+      width: 400px;
+      border-radius: 8px;
+    }
+    .form-group {
+      margin-bottom: 10px;
+      text-align: left;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+    }
+    .comment-section {
+      margin-top: 15px;
+    }
+    .comment-section input {
+      width: calc(100% - 80px);
+    }
+    .comment {
+      text-align: left;
+      margin: 5px 0;
+      font-size: 14px;
+      padding-left: 10px;
+    }
+    .btn {
+      padding: 8px 12px;
+      background: #28a745;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>📋 게시판</h1>
+    <table id="postTable">
+      <thead>
+        <tr>
+          <th>번호</th>
+          <th>제목</th>
+          <th>작성자</th>
+          <th>작성일자</th>
+        </tr>
+      </thead>
+      <tbody id="postBody">
+        <!-- 게시글 목록 삽입 -->
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 글쓰기 모달 -->
+  <div class="modal" id="writeModal">
+    <div class="modal-content">
+      <h3>글쓰기</h3>
+      <div class="form-group">
+        <label>제목</label>
+        <input id="titleInput" />
+      </div>
+      <div class="form-group">
+        <label>작성자</label>
+        <input id="authorInput" />
+      </div>
+      <div class="form-group">
+        <label>내용</label>
+        <textarea id="contentInput" rows="4"></textarea>
+      </div>
+      <button class="btn" onclick="submitPost()">등록</button>
+    </div>
+  </div>
+
+  <!-- 글쓰기 버튼 -->
+  <button class="write-btn" onclick="openModal()">＋</button>
+
+  <script>
+    let posts = [];
+    let count = 0;
+
+    function openModal() {
+      document.getElementById('writeModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('writeModal').style.display = 'none';
+    }
+
+    function getDate() {
+      const now = new Date();
+      return now.toISOString().split("T")[0];
+    }
+
+    function submitPost() {
+      const title = document.getElementById('titleInput').value.trim();
+      const author = document.getElementById('authorInput').value.trim();
+      const content = document.getElementById('contentInput').value.trim();
+
+      if (!title || !author || !content) {
+        alert("모든 항목을 입력하세요.");
+        return;
+      }
+
+      count++;
+      const post = {
+        id: count,
+        title,
+        author,
+        content,
+        date: getDate(),
+        comments: []
+      };
+
+      posts.unshift(post); // 최신글이 위로
+      renderPosts();
+      closeModal();
+      document.getElementById('titleInput').value = '';
+      document.getElementById('authorInput').value = '';
+      document.getElementById('contentInput').value = '';
+    }
+
+    function renderPosts() {
+      const postBody = document.getElementById('postBody');
+      postBody.innerHTML = '';
+
+      posts.forEach(post => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${post.id}</td>
+          <td>${post.title}</td>
+          <td>${post.author}</td>
+          <td>${post.date}</td>
+        `;
+        row.onclick = () => toggleDetail(post.id);
+        postBody.appendChild(row);
+
+        const detailRow = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = 4;
+
+        td.innerHTML = `
+          <div class="post-detail" id="detail-${post.id}">
+            <p style="text-align:left;"><strong>내용:</strong><br>${post.content.replace(/\n/g, '<br>')}</p>
+            <div class="comment-section">
+              <strong>💬 댓글</strong>
+              <div id="comments-${post.id}">
+                ${post.comments.map(c => `<div class="comment">- ${c}</div>`).join('')}
+              </div>
+              <input type="text" placeholder="댓글 입력..." id="commentInput-${post.id}"/>
+              <button class="btn" onclick="addComment(${post.id})">등록</button>
+            </div>
+          </div>
+        `;
+
+        detailRow.appendChild(td);
+        postBody.appendChild(detailRow);
+      });
+    }
+
+    function toggleDetail(id) {
+      const el = document.getElementById(`detail-${id}`);
+      el.style.display = (el.style.display === 'block') ? 'none' : 'block';
+    }
+
+    function addComment(postId) {
+      const input = document.getElementById(`commentInput-${postId}`);
+      const text = input.value.trim();
+      if (!text) return;
+
+      const post = posts.find(p => p.id === postId);
+      post.comments.push(text);
+      input.value = '';
+      renderPosts(); // 댓글 추가 후 새로 그림
+      document.getElementById(`detail-${postId}`).style.display = 'block';
+    }
+
+    // 클릭 시 모달 닫기
+    window.addEventListener('click', e => {
+      if (e.target.id === 'writeModal') closeModal();
+    });
+  </script>
+</body>
+</html>
