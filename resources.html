@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자료실</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
+        }
+        h1 {
+            color: #007BFF;
+        }
+        .file-list {
+            list-style: none;
+            padding: 0;
+        }
+        .file-list li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .file-list a {
+            text-decoration: none;
+            color: #007BFF;
+            font-weight: bold;
+        }
+        .file-list a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>자료실</h1>
+        <p>아래에서 게임 설치 파일을 다운로드하세요:</p>
+        <ul class="file-list">
+            <li>
+                <a href="files/game.txt" download>게임 설치 파일 v1.0</a>
+                <p>최신 버전의 게임 설치 파일입니다.</p>
+            </li>
+            <li>
+                <a href="files/game_installer_v0.9.exe" download>게임 설치 파일 v0.9</a>
+                <p>이전 버전의 게임 설치 파일입니다.</p>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>
